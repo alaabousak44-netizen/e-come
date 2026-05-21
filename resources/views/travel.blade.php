@@ -26,7 +26,7 @@
                 <a href="#packages" class="text-sm font-medium text-white/90 transition hover:text-coral-300">Packages</a>
                 <a href="#about" class="text-sm font-medium text-white/90 transition hover:text-coral-300">About</a>
                 <a href="#testimonials" class="text-sm font-medium text-white/90 transition hover:text-coral-300">Reviews</a>
-                <a href="#contact" class="rounded-full bg-coral-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-coral-500/30 transition hover:bg-coral-600">Book a Trip</a>
+                <a href="{{ url('/login') }}" class="rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-white/10 transition hover:bg-white/20">Login / Sign Up</a>
             </nav>
 
             <button id="menu-btn" type="button" class="rounded-lg p-2 text-white md:hidden" aria-label="Toggle menu" aria-expanded="false">
@@ -75,7 +75,7 @@
             </p>
 
             {{-- Search form --}}
-            <form class="mt-10 w-full max-w-4xl rounded-2xl bg-white p-4 shadow-2xl shadow-ocean-950/20 sm:p-6" action="#packages">
+            <form class="mt-10 w-full max-w-4xl rounded-2xl bg-white p-4 shadow-2xl shadow-ocean-950/20 sm:p-6" action="{{ url('/search-results') }}" method="GET">
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div>
                         <label for="destination" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ocean-700">Destination</label>
