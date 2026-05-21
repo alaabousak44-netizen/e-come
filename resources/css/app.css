@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap');
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -6,6 +7,64 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Playfair Display', Georgia, serif;
+
+    --color-ocean-950: #042f2e;
+    --color-ocean-900: #0a4a47;
+    --color-ocean-800: #0f5c58;
+    --color-ocean-700: #14706b;
+    --color-ocean-600: #1a8a84;
+    --color-ocean-500: #22a39c;
+    --color-ocean-400: #4db8b2;
+    --color-ocean-300: #7ecec9;
+    --color-ocean-200: #b3e4e1;
+    --color-ocean-100: #dff5f3;
+    --color-ocean-50: #f0faf9;
+
+    --color-coral-600: #c45c3e;
+    --color-coral-500: #e07a5f;
+    --color-coral-400: #e89680;
+    --color-coral-300: #f0b5a6;
+
+    --color-sand-100: #faf6f1;
+    --color-sand-200: #f3ebe0;
+    --color-sand-300: #e8dcc8;
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply font-sans text-ocean-950 antialiased;
+    }
+}
+
+@layer utilities {
+    .font-display {
+        font-family: var(--font-display);
+    }
+
+    .text-gradient {
+        @apply bg-gradient-to-r from-ocean-700 to-ocean-500 bg-clip-text text-transparent;
+    }
+}
+
+#main-nav.nav-scrolled .font-display,
+#main-nav.nav-scrolled nav a:not(.rounded-full) {
+    @apply text-ocean-950;
+}
+
+#main-nav.nav-scrolled nav a:not(.rounded-full):hover {
+    @apply text-coral-600;
+}
+
+#main-nav.nav-scrolled #menu-btn {
+    @apply text-ocean-950;
+}
+
+#main-nav.nav-scrolled .font-display span {
+    @apply text-coral-600;
 }
