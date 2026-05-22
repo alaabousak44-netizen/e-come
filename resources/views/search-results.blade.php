@@ -15,52 +15,60 @@
                     <h1 class="mt-2 text-3xl font-bold text-ocean-950">Available trip options</h1>
                     <p class="mt-2 text-sm text-ocean-600">Explore the available trips matching your search criteria.</p>
                 </div>
-                <a href="{{ url('/') }}" class="inline-flex items-center gap-2 rounded-full border border-ocean-200 bg-sand-100 px-4 py-2 text-sm font-semibold text-ocean-950 transition hover:bg-sand-200">Back to search</a>
+                <div class="flex flex-wrap gap-2">
+                    @auth
+                    <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 rounded-full border border-ocean-200 bg-sand-100 px-4 py-2 text-sm font-semibold text-ocean-950 transition hover:bg-sand-200">My Account</a>
+                    @endauth
+                    <a href="{{ route('home') }}" class="inline-flex items-center gap-2 rounded-full border border-ocean-200 bg-sand-100 px-4 py-2 text-sm font-semibold text-ocean-950 transition hover:bg-sand-200">Back to search</a>
+                </div>
             </div>
 
             <div class="mt-6 grid gap-4 sm:grid-cols-3">
                 <div class="rounded-2xl bg-sand-50 p-4">
                     <p class="text-xs uppercase tracking-widest text-ocean-600">Destination</p>
-                    <p class="mt-2 font-semibold text-ocean-950">{{ request('destination', 'Any destination') }}</p>
+                    <p class="mt-2 font-semibold text-ocean-950">{{ $destination ?: 'Any destination' }}</p>
                 </div>
                 <div class="rounded-2xl bg-sand-50 p-4">
                     <p class="text-xs uppercase tracking-widest text-ocean-600">Dates</p>
-                    <p class="mt-2 font-semibold text-ocean-950">{{ request('dates', 'Flexible dates') }}</p>
+                    <p class="mt-2 font-semibold text-ocean-950">{{ $dates ?: 'Flexible dates' }}</p>
                 </div>
                 <div class="rounded-2xl bg-sand-50 p-4">
                     <p class="text-xs uppercase tracking-widest text-ocean-600">Travelers</p>
-                    <p class="mt-2 font-semibold text-ocean-950">{{ request('travelers', '1 Adult') }}</p>
+                    <p class="mt-2 font-semibold text-ocean-950">{{ $travelers }}</p>
                 </div>
             </div>
         </div>
 
         <div class="grid gap-8">
-            @php
-            $results = [
-                ['title' => 'Bali Beach Escape', 'duration' => '7 days', 'price' => '$1,099', 'description' => 'Sun-soaked beaches, temples, and local food tours.'],
-                ['title' => 'Santorini Sunset Retreat', 'duration' => '5 days', 'price' => '$1,299', 'description' => 'Romantic cliffside stays with wine tastings and private cruises.'],
-                ['title' => 'Kyoto Culture Journey', 'duration' => '6 days', 'price' => '$1,450', 'description' => 'Ancient temples, guided city walks, and traditional tea ceremonies.'],
-            ];
-            @endphp
-
-            @foreach ($results as $trip)
+            @forelse ($packages as $package)
             <article class="rounded-3xl bg-white p-8 shadow-lg shadow-ocean-950/5">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h2 class="text-2xl font-semibold text-ocean-950">{{ $trip['title'] }}</h2>
-                        <p class="mt-2 text-sm text-ocean-600">{{ $trip['description'] }}</p>
+                        <h2 class="text-2xl font-semibold text-ocean-950">{{ $package->title }}</h2>
+                        <p class="mt-1 text-sm text-ocean-600">{{ $package->destination_city }}, {{ $package->destination_country }}</p>
+                        <p class="mt-2 text-sm text-ocean-600">{{ $package->description }}</p>
                     </div>
                     <div class="space-y-1 text-right">
                         <p class="text-sm uppercase tracking-widest text-ocean-600">Duration</p>
-                        <p class="text-lg font-semibold text-coral-500">{{ $trip['duration'] }}</p>
+                        <p class="text-lg font-semibold text-coral-500">{{ $package->duration_days }} days</p>
                     </div>
                 </div>
                 <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <p class="text-lg font-semibold text-ocean-950">Starting from {{ $trip['price'] }}</p>
-                    <a href="#" class="inline-flex rounded-full bg-ocean-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-ocean-800">View details</a>
+                    <p class="text-lg font-semibold text-ocean-950">Starting from ${{ number_format($package->price_per_person, 0) }} / person</p>
+                    @auth
+                    <a href="{{ route('bookings.create', ['package' => $package, 'dates' => $dates, 'travelers' => $travelers]) }}" class="inline-flex rounded-full bg-ocean-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-ocean-800">Book &amp; pay</a>
+                    @else
+                    <a href="{{ route('login') }}" class="inline-flex rounded-full bg-ocean-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-ocean-800">Login to book</a>
+                    @endauth
                 </div>
             </article>
-            @endforeach
+            @empty
+            <div class="rounded-3xl bg-white p-8 text-center shadow-lg shadow-ocean-950/5">
+                <p class="text-lg font-semibold text-ocean-950">No trips found</p>
+                <p class="mt-2 text-sm text-ocean-600">Try another destination or browse all packages from the home page.</p>
+                <a href="{{ url('/') }}" class="mt-6 inline-flex rounded-full bg-ocean-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-ocean-800">Back to home</a>
+            </div>
+            @endforelse
         </div>
     </div>
 </body>

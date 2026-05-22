@@ -26,7 +26,15 @@
                 <a href="#packages" class="text-sm font-medium text-white/90 transition hover:text-coral-300">Packages</a>
                 <a href="#about" class="text-sm font-medium text-white/90 transition hover:text-coral-300">About</a>
                 <a href="#testimonials" class="text-sm font-medium text-white/90 transition hover:text-coral-300">Reviews</a>
-                <a href="{{ url('/login') }}" class="rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-white/10 transition hover:bg-white/20">Login / Sign Up</a>
+                @auth
+                <a href="{{ route('dashboard') }}" class="text-sm font-medium text-white/90 transition hover:text-coral-300">My Account</a>
+                <form action="{{ route('logout') }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-white/10 transition hover:bg-white/20">Logout</button>
+                </form>
+                @else
+                <a href="{{ route('login') }}" class="rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-white/10 transition hover:bg-white/20">Login / Sign Up</a>
+                @endauth
             </nav>
 
             <button id="menu-btn" type="button" class="rounded-lg p-2 text-white md:hidden" aria-label="Toggle menu" aria-expanded="false">
@@ -45,6 +53,11 @@
                 <a href="#packages" class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10">Packages</a>
                 <a href="#about" class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10">About</a>
                 <a href="#testimonials" class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10">Reviews</a>
+                @auth
+                <a href="{{ route('dashboard') }}" class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10">My Account</a>
+                @else
+                <a href="{{ route('login') }}" class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10">Login / Sign Up</a>
+                @endauth
                 <a href="#contact" class="mt-2 rounded-full bg-coral-500 px-4 py-3 text-center font-semibold text-white">Book a Trip</a>
             </nav>
         </div>
@@ -80,11 +93,10 @@
                     <div>
                         <label for="destination" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ocean-700">Destination</label>
                         <select id="destination" name="destination" class="w-full rounded-xl border border-sand-300 bg-sand-100 px-4 py-3 text-sm text-ocean-950 focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-500/20">
-                            <option>Bali, Indonesia</option>
-                            <option>Santorini, Greece</option>
-                            <option>Kyoto, Japan</option>
-                            <option>Marrakech, Morocco</option>
-                            <option>Swiss Alps</option>
+                            <option value="">Any destination</option>
+                            @foreach ($searchDestinations as $place)
+                            <option value="{{ $place }}">{{ $place }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div>
@@ -135,18 +147,7 @@
             </div>
 
             <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                @php
-                $destinations = [
-                    ['name' => 'Bali', 'country' => 'Indonesia', 'price' => 'From $899', 'img' => 'https://images.unsplash.com/photo-1537996194474-f4c2f8a0c0c0?w=600&q=80', 'tag' => 'Beach & Culture'],
-                    ['name' => 'Santorini', 'country' => 'Greece', 'price' => 'From $1,299', 'img' => 'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49a?w=600&q=80', 'tag' => 'Romance'],
-                    ['name' => 'Kyoto', 'country' => 'Japan', 'price' => 'From $1,499', 'img' => 'https://images.unsplash.com/photo-1493976040374-85c8e912f1f7?w=600&q=80', 'tag' => 'Heritage'],
-                    ['name' => 'Marrakech', 'country' => 'Morocco', 'price' => 'From $749', 'img' => 'https://images.unsplash.com/photo-1489749791429-7a0e6e3e0b1a?w=600&q=80', 'tag' => 'Adventure'],
-                    ['name' => 'Swiss Alps', 'country' => 'Switzerland', 'price' => 'From $1,899', 'img' => 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80', 'tag' => 'Mountains'],
-                    ['name' => 'Maldives', 'country' => 'Indian Ocean', 'price' => 'From $2,199', 'img' => 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=600&q=80', 'tag' => 'Luxury'],
-                ];
-                @endphp
-
-                @foreach ($destinations as $dest)
+                @forelse ($destinations as $dest)
                 <article data-reveal class="group opacity-0 translate-y-6 transition-all duration-700 overflow-hidden rounded-2xl bg-white shadow-md shadow-ocean-950/5 hover:shadow-xl">
                     <div class="relative aspect-[4/3] overflow-hidden">
                         <img src="{{ $dest['img'] }}" alt="{{ $dest['name'] }}, {{ $dest['country'] }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
@@ -166,7 +167,9 @@
                         </a>
                     </div>
                 </article>
-                @endforeach
+                @empty
+                <p class="col-span-full text-center text-ocean-600">No destinations available yet. Add travel packages in your database.</p>
+                @endforelse
             </div>
         </div>
     </section>
@@ -181,33 +184,24 @@
             </div>
 
             <div class="mt-14 grid gap-8 lg:grid-cols-3">
-                @php
-                $packages = [
-                    ['name' => 'Explorer', 'duration' => '5 days', 'price' => '$1,199', 'features' => ['3-star boutique hotel', 'Daily breakfast', '2 guided tours', 'Airport transfers'], 'featured' => false],
-                    ['name' => 'Adventurer', 'duration' => '10 days', 'price' => '$2,499', 'features' => ['4-star hotel + resort stay', 'All meals included', '5 guided experiences', 'Domestic flights', 'Travel insurance'], 'featured' => true],
-                    ['name' => 'Luxury Escape', 'duration' => '14 days', 'price' => '$4,999', 'features' => ['5-star resorts & villas', 'Private chauffeur', 'Personal concierge', 'Premium excursions', 'Business-class flights'], 'featured' => false],
-                ];
-                @endphp
-
-                @foreach ($packages as $pkg)
-                <div data-reveal class="relative opacity-0 translate-y-6 transition-all duration-700 rounded-2xl border {{ $pkg['featured'] ? 'border-coral-500 bg-ocean-900 shadow-2xl shadow-coral-500/10 scale-105 lg:scale-110' : 'border-ocean-800 bg-ocean-900/50' }} p-8">
-                    @if ($pkg['featured'])
-                    <span class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-coral-500 px-4 py-1 text-xs font-bold uppercase tracking-wide">Most popular</span>
+                @forelse ($packages as $index => $package)
+                <div data-reveal class="relative opacity-0 translate-y-6 transition-all duration-700 rounded-2xl border {{ $index === 1 ? 'border-coral-500 bg-ocean-900 shadow-2xl shadow-coral-500/10 scale-105 lg:scale-110' : 'border-ocean-800 bg-ocean-900/50' }} p-8">
+                    @if ($index === 1)
+                    <span class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-coral-500 px-4 py-1 text-xs font-bold uppercase tracking-wide">Featured</span>
                     @endif
-                    <h3 class="font-display text-2xl font-semibold">{{ $pkg['name'] }}</h3>
-                    <p class="mt-1 text-ocean-300">{{ $pkg['duration'] }}</p>
-                    <p class="mt-6 font-display text-4xl font-bold text-coral-400">{{ $pkg['price'] }}<span class="text-base font-sans font-normal text-ocean-400"> / person</span></p>
-                    <ul class="mt-8 space-y-3">
-                        @foreach ($pkg['features'] as $feature)
-                        <li class="flex items-center gap-3 text-sm text-ocean-100">
-                            <svg class="h-5 w-5 shrink-0 text-ocean-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                            {{ $feature }}
-                        </li>
-                        @endforeach
-                    </ul>
-                    <a href="#contact" class="mt-8 block w-full rounded-xl {{ $pkg['featured'] ? 'bg-coral-500 hover:bg-coral-600' : 'bg-ocean-700 hover:bg-ocean-600' }} py-3 text-center text-sm font-semibold transition">Get started</a>
+                    <h3 class="font-display text-2xl font-semibold">{{ $package->title }}</h3>
+                    <p class="mt-1 text-ocean-300">{{ $package->destination_city }}, {{ $package->destination_country }} · {{ $package->duration_days }} days</p>
+                    <p class="mt-6 font-display text-4xl font-bold text-coral-400">${{ number_format($package->price_per_person, 0) }}<span class="text-base font-sans font-normal text-ocean-400"> / person</span></p>
+                    <p class="mt-6 text-sm text-ocean-100">{{ $package->description }}</p>
+                    @auth
+                    <a href="{{ route('bookings.create', $package) }}" class="mt-8 block w-full rounded-xl {{ $index === 1 ? 'bg-coral-500 hover:bg-coral-600' : 'bg-ocean-700 hover:bg-ocean-600' }} py-3 text-center text-sm font-semibold transition">Book &amp; pay</a>
+                    @else
+                    <a href="{{ route('search', ['destination' => $package->destination_city . ', ' . $package->destination_country]) }}" class="mt-8 block w-full rounded-xl {{ $index === 1 ? 'bg-coral-500 hover:bg-coral-600' : 'bg-ocean-700 hover:bg-ocean-600' }} py-3 text-center text-sm font-semibold transition">View trip</a>
+                    @endauth
                 </div>
-                @endforeach
+                @empty
+                <p class="col-span-full text-center text-ocean-200">No travel packages in the database yet.</p>
+                @endforelse
             </div>
         </div>
     </section>
