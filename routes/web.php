@@ -4,10 +4,13 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\TravelController;
+use App\Http\Controllers\TravelRequestController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [TravelController::class, 'home'])->name('home');
 Route::get('/search-results', [TravelController::class, 'search'])->name('search');
+Route::post('/travel-requests', [TravelRequestController::class, 'store'])->name('travel-requests.store');
+Route::get('/travel-requests/sent', [TravelRequestController::class, 'sent'])->name('travel-requests.sent');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');

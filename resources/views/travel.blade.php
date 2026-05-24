@@ -291,14 +291,14 @@
                     <div data-reveal class="p-8 sm:p-12 lg:p-16 opacity-0 translate-y-6 transition-all duration-700">
                         <h2 class="font-display text-3xl font-bold text-white sm:text-4xl">Ready for your next adventure?</h2>
                         <p class="mt-4 text-ocean-200">Tell us where you want to go. Our travel experts will craft a personalized quote within 24 hours.</p>
-                        <form class="mt-8 space-y-4" action="#" method="post">
+                        <form class="mt-8 space-y-4" action="{{ route('travel-requests.store') }}" method="post">
                             @csrf
                             <div class="grid gap-4 sm:grid-cols-2">
-                                <input type="text" name="name" placeholder="Your name" required class="rounded-xl border-0 bg-white/10 px-4 py-3 text-white placeholder:text-ocean-300 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-coral-400">
-                                <input type="email" name="email" placeholder="Email address" required class="rounded-xl border-0 bg-white/10 px-4 py-3 text-white placeholder:text-ocean-300 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-coral-400">
+                                <input type="text" name="name" value="{{ old('name') }}" placeholder="Your name" required class="rounded-xl border-0 bg-white/10 px-4 py-3 text-white placeholder:text-ocean-300 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-coral-400">
+                                <input type="email" name="email" value="{{ old('email') }}" placeholder="Email address" required class="rounded-xl border-0 bg-white/10 px-4 py-3 text-white placeholder:text-ocean-300 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-coral-400">
                             </div>
-                            <input type="text" name="destination_interest" placeholder="Where would you like to go?" class="w-full rounded-xl border-0 bg-white/10 px-4 py-3 text-white placeholder:text-ocean-300 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-coral-400">
-                            <textarea name="message" rows="3" placeholder="Tell us about your dream trip..." class="w-full rounded-xl border-0 bg-white/10 px-4 py-3 text-white placeholder:text-ocean-300 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-coral-400"></textarea>
+                            <input type="text" name="destination_interest" value="{{ old('destination_interest') }}" placeholder="Where would you like to go?" required class="w-full rounded-xl border-0 bg-white/10 px-4 py-3 text-white placeholder:text-ocean-300 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-coral-400">
+                            <textarea name="message" rows="3" placeholder="Tell us about your dream trip..." required class="w-full rounded-xl border-0 bg-white/10 px-4 py-3 text-white placeholder:text-ocean-300 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-coral-400">{{ old('message') }}</textarea>
                             <button type="submit" class="w-full rounded-xl bg-coral-500 py-3.5 font-semibold text-white transition hover:bg-coral-600 sm:w-auto sm:px-10">Request a quote</button>
                         </form>
                     </div>
