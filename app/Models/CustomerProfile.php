@@ -18,6 +18,7 @@ class CustomerProfile extends Model
         'passport_number',
         'passport_expiry',
         'nationality',
+        'gender',
         'date_of_birth',
         'frequent_flyer_no',
     ];

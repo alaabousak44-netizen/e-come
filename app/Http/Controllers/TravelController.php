@@ -9,7 +9,7 @@ use Illuminate\View\View;
 class TravelController extends Controller
 {
     private const DESTINATION_IMAGES = [
-        'Bali' => 'https://images.unsplash.com/photo-1537996194474-f4c2f8a0c0c0?w=600&q=80',
+        'Bali' => 'https://unsplash.com/fr/photos/temple-brun-et-vert-pres-du-plan-deau-sous-ciel-nuageux-bleu-et-blanc-pendant-la-journee-bnMPFPuSCI0?utm_source=unsplash&utm_medium=referral&utm_content=creditShareLink',
         'Santorini' => 'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49a?w=600&q=80',
         'Kyoto' => 'https://images.unsplash.com/photo-1493976040374-85c8e912f1f7?w=600&q=80',
         'Marrakech' => 'https://images.unsplash.com/photo-1489749791429-7a0e6e3e0b1a?w=600&q=80',

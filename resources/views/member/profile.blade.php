@@ -42,6 +42,17 @@
             <input id="nationality" name="nationality" type="text" value="{{ old('nationality', $user->profile?->nationality) }}" class="mt-2 w-full rounded-2xl border border-sand-300 bg-sand-100 px-4 py-3 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-500/20">
         </div>
         <div>
+            <label for="gender" class="block text-sm font-medium text-ocean-700">Sex</label>
+            <select id="gender" name="gender" class="mt-2 w-full rounded-2xl border border-sand-300 bg-sand-100 px-4 py-3 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-500/20">
+                <option value="" @selected(old('gender', $user->profile?->gender) === null)>Prefer not to say</option>
+                <option value="Female" @selected(old('gender', $user->profile?->gender) === 'Female')>Female</option>
+                <option value="Male" @selected(old('gender', $user->profile?->gender) === 'Male')>Male</option>
+                <option value="Non-binary" @selected(old('gender', $user->profile?->gender) === 'Non-binary')>Non-binary</option>
+                <option value="Other" @selected(old('gender', $user->profile?->gender) === 'Other')>Other</option>
+            </select>
+            @error('gender')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+        </div>
+        <div>
             <label for="date_of_birth" class="block text-sm font-medium text-ocean-700">Date of birth</label>
             <input id="date_of_birth" name="date_of_birth" type="date" value="{{ old('date_of_birth', $user->profile?->date_of_birth?->format('Y-m-d')) }}" class="mt-2 w-full rounded-2xl border border-sand-300 bg-sand-100 px-4 py-3 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-500/20">
         </div>

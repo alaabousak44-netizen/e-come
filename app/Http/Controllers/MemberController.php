@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class MemberController extends Controller
@@ -62,6 +63,7 @@ class MemberController extends Controller
             'email' => ['required', 'email', 'max:100', 'unique:users,email,'.$user->user_id.',user_id'],
             'phone' => ['nullable', 'string', 'max:20'],
             'nationality' => ['nullable', 'string', 'max:50'],
+            'gender' => ['nullable', 'string', 'max:20'],
             'date_of_birth' => ['nullable', 'date'],
             'passport_number' => ['nullable', 'string', 'max:50'],
         ]);
@@ -73,13 +75,19 @@ class MemberController extends Controller
             'phone' => $validated['phone'] ?? null,
         ]);
 
+        $profileData = [
+            'nationality' => $validated['nationality'] ?? null,
+            'date_of_birth' => $validated['date_of_birth'] ?? null,
+            'passport_number' => $validated['passport_number'] ?? null,
+        ];
+
+        if (Schema::hasColumn('customer_profiles', 'gender')) {
+            $profileData['gender'] = $validated['gender'] ?? null;
+        }
+
         $user->profile()->updateOrCreate(
             ['user_id' => $user->user_id],
-            [
-                'nationality' => $validated['nationality'] ?? null,
-                'date_of_birth' => $validated['date_of_birth'] ?? null,
-                'passport_number' => $validated['passport_number'] ?? null,
-            ]
+            $profileData
         );
 
         return redirect()->route('profile')->with('success', 'Profile updated successfully.');

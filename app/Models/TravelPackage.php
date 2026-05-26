@@ -21,6 +21,7 @@ class TravelPackage extends Model
         'price_per_person',
         'max_capacity',
         'is_active',
+        'created_at',
     ];
 
     protected function casts(): array

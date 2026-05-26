@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\MemberController;
@@ -27,4 +28,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/packages/{package}/book', [BookingController::class, 'create'])->name('bookings.create');
     Route::post('/packages/{package}/book', [BookingController::class, 'store'])->name('bookings.store');
     Route::get('/bookings/{booking}/confirmation', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+        Route::get('/packages', [AdminController::class, 'packages'])->name('packages.index');
+        Route::get('/packages/create', [AdminController::class, 'createPackage'])->name('packages.create');
+        Route::post('/packages', [AdminController::class, 'storePackage'])->name('packages.store');
+        Route::get('/packages/{package}/edit', [AdminController::class, 'editPackage'])->name('packages.edit');
+        Route::put('/packages/{package}', [AdminController::class, 'updatePackage'])->name('packages.update');
+        Route::delete('/packages/{package}', [AdminController::class, 'destroyPackage'])->name('packages.destroy');
+        Route::get('/users', [AdminController::class, 'users'])->name('users.index');
+        Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
+    });
 });

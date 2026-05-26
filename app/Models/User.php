@@ -42,6 +42,11 @@ class User extends Authenticatable
         return trim("{$this->first_name} {$this->last_name}");
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->getAuthIdentifier() === 1 || $this->email === env('ADMIN_EMAIL', 'admin@horizon.com');
+    }
+
     public function profile(): HasOne
     {
         return $this->hasOne(CustomerProfile::class, 'user_id', 'user_id');
