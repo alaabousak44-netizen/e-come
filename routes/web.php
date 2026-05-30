@@ -9,6 +9,7 @@ use App\Http\Controllers\TravelRequestController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [TravelController::class, 'home'])->name('home');
+Route::redirect('/home', '/');
 Route::get('/search-results', [TravelController::class, 'search'])->name('search');
 Route::post('/travel-requests', [TravelRequestController::class, 'store'])->name('travel-requests.store');
 Route::get('/travel-requests/sent', [TravelRequestController::class, 'sent'])->name('travel-requests.sent');
