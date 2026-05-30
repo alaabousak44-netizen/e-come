@@ -19,7 +19,8 @@ class TravelController extends Controller
 
     public function home(): View
     {
-        $packages = TravelPackage::active()
+        $packages = TravelPackage::with('images')
+            ->active()
             ->orderBy('price_per_person')
             ->get();
 
@@ -57,20 +58,32 @@ class TravelController extends Controller
         return $packages
             ->unique(fn ($p) => $p->destination_city.'|'.$p->destination_country)
             ->take(6)
-            ->map(function ($package) use (&$seen) {
+            ->map(function ($package) use ($packages, &$seen) {
                 $key = $package->destination_city;
                 if (isset($seen[$key])) {
                     return null;
                 }
                 $seen[$key] = true;
 
+                $image = $package->images->first();
+                if (! $image) {
+                    $fallbackPackage = $packages->first(function ($candidate) use ($package) {
+                        return $candidate->destination_city === $package->destination_city
+                            && $candidate->destination_country === $package->destination_country
+                            && $candidate->images->isNotEmpty();
+                    });
+                    $image = $fallbackPackage ? $fallbackPackage->images->first() : null;
+                }
+
                 return [
                     'name' => $package->destination_city,
                     'country' => $package->destination_country,
                     'price' => 'From $'.number_format($package->price_per_person, 0),
-                    'img' => self::DESTINATION_IMAGES[$package->destination_city]
-                        ?? 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&q=80',
-                    'tag' => $package->title,
+                    'img' => $image
+                        ? asset('storage/' . $image->path)
+                        : self::DESTINATION_IMAGES[$package->destination_city]
+                            ?? 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&q=80',
+                    'tag' => $package->title ?: $package->destination_city,
                 ];
             })
             ->filter()

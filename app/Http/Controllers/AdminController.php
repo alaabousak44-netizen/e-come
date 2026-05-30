@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\CustomerProfile;
 use App\Models\TravelPackage;
+use App\Models\TravelPackageImage;
+use App\Models\TravelRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,6 +33,7 @@ class AdminController extends Controller
         $totalUsers = User::count();
         $totalPackages = TravelPackage::count();
         $totalBookings = Booking::count();
+        $totalRequests = TravelRequest::count();
 
         $ageGroups = [
             'Under 18' => 0,
@@ -79,6 +82,7 @@ class AdminController extends Controller
             'totalUsers',
             'totalPackages',
             'totalBookings',
+            'totalRequests',
             'ageGroups',
             'regionDistribution',
             'genderDistribution',
@@ -116,10 +120,12 @@ class AdminController extends Controller
             'duration_days' => ['required', 'integer', 'min:1'],
             'price_per_person' => ['required', 'numeric', 'min:0'],
             'max_capacity' => ['required', 'integer', 'min:1'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'max:5120'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
-        TravelPackage::create([
+        $package = TravelPackage::create([
             'title' => $validated['title'],
             'description' => $validated['description'],
             'destination_city' => $validated['destination_city'],
@@ -130,6 +136,19 @@ class AdminController extends Controller
             'is_active' => $request->boolean('is_active'),
             'created_at' => now(),
         ]);
+
+        foreach ($request->file('images', []) as $file) {
+            if (! $file || ! $file->isValid()) {
+                continue;
+            }
+
+            $path = $file->store('packages', 'public');
+            TravelPackageImage::create([
+                'package_id' => $package->package_id,
+                'path' => $path,
+                'created_at' => now(),
+            ]);
+        }
 
         return redirect()->route('admin.packages.index')->with('success', 'Destination added successfully.');
     }
@@ -153,6 +172,8 @@ class AdminController extends Controller
             'duration_days' => ['required', 'integer', 'min:1'],
             'price_per_person' => ['required', 'numeric', 'min:0'],
             'max_capacity' => ['required', 'integer', 'min:1'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'max:5120'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
@@ -167,6 +188,19 @@ class AdminController extends Controller
             'is_active' => $request->boolean('is_active'),
         ]);
 
+        foreach ($request->file('images', []) as $file) {
+            if (! $file || ! $file->isValid()) {
+                continue;
+            }
+
+            $path = $file->store('packages', 'public');
+            TravelPackageImage::create([
+                'package_id' => $package->package_id,
+                'path' => $path,
+                'created_at' => now(),
+            ]);
+        }
+
         return redirect()->route('admin.packages.index')->with('success', 'Destination updated successfully.');
     }
 
@@ -174,9 +208,43 @@ class AdminController extends Controller
     {
         $this->authorizeAdmin();
 
+        // delete related images from storage
+        if ($package->images()->count() > 0) {
+            foreach ($package->images as $img) {
+                try {\Illuminate\Support\Facades\Storage::disk('public')->delete($img->path); } catch (\Throwable $e) {}
+                $img->delete();
+            }
+        }
+
         $package->delete();
 
         return redirect()->route('admin.packages.index')->with('success', 'Destination deleted successfully.');
+    }
+
+    public function destroyPackageImage(TravelPackage $package, TravelPackageImage $image): RedirectResponse
+    {
+        $this->authorizeAdmin();
+
+        if ($image->package_id !== $package->package_id) {
+            abort(404);
+        }
+
+        try {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($image->path);
+        } catch (\Throwable $e) {}
+
+        $image->delete();
+
+        return redirect()->back()->with('success', 'Image removed.');
+    }
+
+    public function requests(): View
+    {
+        $this->authorizeAdmin();
+
+        $requests = TravelRequest::orderByDesc('created_at')->get();
+
+        return view('admin.requests.index', compact('requests'));
     }
 
     public function users(): View

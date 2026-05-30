@@ -37,6 +37,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/packages/{package}/edit', [AdminController::class, 'editPackage'])->name('packages.edit');
         Route::put('/packages/{package}', [AdminController::class, 'updatePackage'])->name('packages.update');
         Route::delete('/packages/{package}', [AdminController::class, 'destroyPackage'])->name('packages.destroy');
+        Route::delete('/packages/{package}/images/{image}', [AdminController::class, 'destroyPackageImage'])->name('packages.images.destroy');
+        Route::get('/requests', [AdminController::class, 'requests'])->name('requests.index');
         Route::get('/users', [AdminController::class, 'users'])->name('users.index');
         Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
     });

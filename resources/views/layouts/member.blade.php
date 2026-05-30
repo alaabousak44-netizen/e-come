@@ -20,7 +20,9 @@
 
             <nav class="hidden items-center gap-6 md:flex">
                 <a href="{{ route('dashboard') }}" class="text-sm font-medium {{ request()->routeIs('dashboard') ? 'text-coral-600' : 'text-ocean-700 hover:text-ocean-950' }}">Dashboard</a>
-                <a href="{{ route('bookings') }}" class="text-sm font-medium {{ request()->routeIs('bookings') ? 'text-coral-600' : 'text-ocean-700 hover:text-ocean-950' }}">My Bookings</a>
+                @unless(Auth::user()->isAdmin())
+                    <a href="{{ route('bookings') }}" class="text-sm font-medium {{ request()->routeIs('bookings') ? 'text-coral-600' : 'text-ocean-700 hover:text-ocean-950' }}">My Bookings</a>
+                @endunless
                 <a href="{{ route('profile') }}" class="text-sm font-medium {{ request()->routeIs('profile') ? 'text-coral-600' : 'text-ocean-700 hover:text-ocean-950' }}">Profile</a>
                 @if(Auth::user()->isAdmin())
                     <a href="{{ route('admin.dashboard') }}" class="text-sm font-medium {{ request()->routeIs('admin.*') ? 'text-coral-600' : 'text-ocean-700 hover:text-ocean-950' }}">Admin</a>
@@ -39,7 +41,9 @@
 
         <nav class="flex gap-1 overflow-x-auto border-t border-sand-200 px-4 py-2 md:hidden">
             <a href="{{ route('dashboard') }}" class="whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold {{ request()->routeIs('dashboard') ? 'bg-ocean-700 text-white' : 'bg-sand-100 text-ocean-700' }}">Dashboard</a>
-            <a href="{{ route('bookings') }}" class="whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold {{ request()->routeIs('bookings') ? 'bg-ocean-700 text-white' : 'bg-sand-100 text-ocean-700' }}">Bookings</a>
+            @unless(Auth::user()->isAdmin())
+                <a href="{{ route('bookings') }}" class="whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold {{ request()->routeIs('bookings') ? 'bg-ocean-700 text-white' : 'bg-sand-100 text-ocean-700' }}">Bookings</a>
+            @endunless
             <a href="{{ route('profile') }}" class="whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold {{ request()->routeIs('profile') ? 'bg-ocean-700 text-white' : 'bg-sand-100 text-ocean-700' }}">Profile</a>
             @if(Auth::user()->isAdmin())
                 <a href="{{ route('admin.dashboard') }}" class="whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold {{ request()->routeIs('admin.*') ? 'bg-ocean-700 text-white' : 'bg-sand-100 text-ocean-700' }}">Admin</a>

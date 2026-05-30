@@ -8,7 +8,7 @@
     <p class="mt-2 text-ocean-600">Update the details for this travel package.</p>
 </div>
 
-<form action="{{ route('admin.packages.update', $package) }}" method="POST" class="space-y-8 rounded-3xl bg-white p-8 shadow-sm border border-sand-200">
+<form action="{{ route('admin.packages.update', $package) }}" method="POST" enctype="multipart/form-data" class="space-y-8 rounded-3xl bg-white p-8 shadow-sm border border-sand-200">
     @csrf
     @method('PUT')
 
@@ -54,6 +54,13 @@
         @error('description')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
     </div>
 
+    <div>
+        <label for="images" class="block text-sm font-medium text-ocean-700">Add photos</label>
+        <input id="images" name="images[]" type="file" multiple accept="image/*" class="mt-2 w-full text-sm" />
+        @error('images')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+        @error('images.*')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+    </div>
+
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <label class="inline-flex items-center gap-3 text-sm font-medium text-ocean-700">
             <input type="hidden" name="is_active" value="0">
@@ -63,4 +70,22 @@
         <button type="submit" class="rounded-full bg-ocean-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-ocean-800">Update destination</button>
     </div>
 </form>
+
+@if($package->images && $package->images->count() > 0)
+    <div class="mt-8">
+        <label class="block text-sm font-medium text-ocean-700">Existing photos</label>
+        <div class="mt-2 flex flex-wrap gap-3">
+            @foreach($package->images as $img)
+                <div class="relative w-32 rounded-md overflow-hidden border border-sand-200 bg-sand-50">
+                    <img src="{{ asset('storage/' . $img->path) }}" alt="photo" class="h-20 w-32 object-cover">
+                    <form action="{{ route('admin.packages.images.destroy', [$package, $img]) }}" method="POST" class="absolute right-1 top-1">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="rounded-full bg-red-50 p-1 text-red-700">&times;</button>
+                    </form>
+                </div>
+            @endforeach
+        </div>
+    </div>
+@endif
 @endsection

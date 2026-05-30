@@ -186,10 +186,14 @@
             <div class="mt-14 grid gap-8 lg:grid-cols-3">
                 @forelse ($packages as $index => $package)
                 <div data-reveal class="relative opacity-0 translate-y-6 transition-all duration-700 rounded-2xl border {{ $index === 1 ? 'border-coral-500 bg-ocean-900 shadow-2xl shadow-coral-500/10 scale-105 lg:scale-110' : 'border-ocean-800 bg-ocean-900/50' }} p-8">
+                    @php $img = $package->images->first(); @endphp
+                    <div class="mb-6 flex justify-center">
+                        <img src="{{ $img ? asset('storage/' . $img->path) : 'https://via.placeholder.com/640x480?text=No+image' }}" alt="{{ $package->title }}" style="width:min(10rem,100%);height:10rem;" class="rounded-3xl object-cover object-center shadow-lg">
+                    </div>
                     @if ($index === 1)
                     <span class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-coral-500 px-4 py-1 text-xs font-bold uppercase tracking-wide">Featured</span>
                     @endif
-                    <h3 class="font-display text-2xl font-semibold">{{ $package->title }}</h3>
+                    <h3 class="font-display text-2xl font-semibold">{{ $package->title ?: 'Untitled destination' }}</h3>
                     <p class="mt-1 text-ocean-300">{{ $package->destination_city }}, {{ $package->destination_country }} · {{ $package->duration_days }} days</p>
                     <p class="mt-6 font-display text-4xl font-bold text-coral-400">${{ number_format($package->price_per_person, 0) }}<span class="text-base font-sans font-normal text-ocean-400"> / person</span></p>
                     <p class="mt-6 text-sm text-ocean-100">{{ $package->description }}</p>

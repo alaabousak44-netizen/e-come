@@ -24,18 +24,20 @@ class TravelPackage extends Model
         'created_at',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'price_per_person' => 'decimal:2',
-            'is_active' => 'boolean',
-            'created_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'price_per_person' => 'decimal:2',
+        'is_active' => 'boolean',
+        'created_at' => 'datetime',
+    ];
 
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(TravelPackageImage::class, 'package_id');
     }
 
     public function getRouteKeyName(): string

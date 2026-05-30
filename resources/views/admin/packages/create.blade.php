@@ -8,7 +8,7 @@
     <p class="mt-2 text-ocean-600">Create a travel package that travelers can book.</p>
 </div>
 
-<form action="{{ route('admin.packages.store') }}" method="POST" class="space-y-8 rounded-3xl bg-white p-8 shadow-sm border border-sand-200">
+<form action="{{ route('admin.packages.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8 rounded-3xl bg-white p-8 shadow-sm border border-sand-200">
     @csrf
 
     <div class="grid gap-6 sm:grid-cols-2">
@@ -51,6 +51,13 @@
         <label for="description" class="block text-sm font-medium text-ocean-700">Description</label>
         <textarea id="description" name="description" rows="6" required class="mt-2 w-full rounded-3xl border border-sand-300 bg-sand-100 px-4 py-3 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-500/20">{{ old('description') }}</textarea>
         @error('description')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+    </div>
+
+    <div>
+        <label for="images" class="block text-sm font-medium text-ocean-700">Photos (optional)</label>
+        <input id="images" name="images[]" type="file" multiple accept="image/*" class="mt-2 w-full text-sm" />
+        @error('images')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+        @error('images.*')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
     </div>
 
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
