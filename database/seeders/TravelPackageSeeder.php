@@ -70,12 +70,17 @@ class TravelPackageSeeder extends Seeder
             ],
         ];
 
+        $weekOffset = 2;
+
         foreach ($packages as $package) {
             TravelPackage::create([
                 ...$package,
+                'departure_date' => now()->addWeeks($weekOffset)->format('Y-m-d'),
                 'is_active' => true,
                 'created_at' => now(),
             ]);
+
+            $weekOffset++;
         }
     }
 }

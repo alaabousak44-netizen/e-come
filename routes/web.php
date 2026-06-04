@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\TravelController;
 use App\Http\Controllers\TravelRequestController;
@@ -19,6 +20,8 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/packages/{package}', [TravelController::class, 'show'])->name('packages.show');
+
 Route::middleware('auth')->group(function () {
     Route::get('/welcome', [MemberController::class, 'welcome'])->name('welcome');
     Route::get('/dashboard', [MemberController::class, 'dashboard'])->name('dashboard');
@@ -29,6 +32,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/packages/{package}/book', [BookingController::class, 'create'])->name('bookings.create');
     Route::post('/packages/{package}/book', [BookingController::class, 'store'])->name('bookings.store');
     Route::get('/bookings/{booking}/confirmation', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
+
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::get('/cart/add/{package}', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update/{package}', [CartController::class, 'update'])->name('cart.update');
+    Route::post('/cart/remove/{package}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('dashboard');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TravelPackage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 class TravelController extends Controller
@@ -19,14 +20,15 @@ class TravelController extends Controller
 
     public function home(): View
     {
-        $packages = TravelPackage::with('images')
-            ->active()
+        $packages = TravelPackage::with(['images', 'departureDates'])
+            ->upcoming()
             ->orderBy('price_per_person')
             ->get();
 
         $destinations = $this->destinationsFromPackages($packages);
 
-        $searchDestinations = TravelPackage::active()
+        $searchDestinations = TravelPackage::with('departureDates')
+            ->upcoming()
             ->select('destination_city', 'destination_country')
             ->distinct()
             ->orderBy('destination_city')
@@ -38,7 +40,8 @@ class TravelController extends Controller
 
     public function search(Request $request): View
     {
-        $packages = TravelPackage::active()
+        $packages = TravelPackage::with(['images', 'departureDates'])
+            ->upcoming()
             ->forDestination($request->query('destination'))
             ->orderBy('price_per_person')
             ->get();
@@ -49,6 +52,17 @@ class TravelController extends Controller
             'dates' => $request->query('dates', 'Flexible dates'),
             'travelers' => $request->query('travelers', '1 Adult'),
         ]);
+    }
+
+    public function show(TravelPackage $package): View
+    {
+        if (! $package->is_active || ! $package->next_departure_date) {
+            abort(404);
+        }
+
+        $package->load(['images', 'departureDates']);
+
+        return view('packages.show', compact('package'));
     }
 
     private function destinationsFromPackages($packages): array
@@ -78,6 +92,7 @@ class TravelController extends Controller
                 return [
                     'name' => $package->destination_city,
                     'country' => $package->destination_country,
+                    'package_id' => $package->package_id,
                     'price' => 'From $'.number_format($package->price_per_person, 0),
                     'img' => $image
                         ? asset('storage/' . $image->path)

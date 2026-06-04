@@ -33,6 +33,12 @@
             <input id="duration_days" name="duration_days" type="number" min="1" value="{{ old('duration_days', $package->duration_days) }}" required class="mt-2 w-full rounded-2xl border border-sand-300 bg-sand-100 px-4 py-3 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-500/20">
             @error('duration_days')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
         </div>
+        <div>
+            <label for="departure_dates" class="block text-sm font-medium text-ocean-700">Departure dates</label>
+            <textarea id="departure_dates" name="departure_dates" rows="4" class="mt-2 w-full rounded-2xl border border-sand-300 bg-sand-100 px-4 py-3 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-500/20" placeholder="2026-07-01\n2026-07-15\n2026-08-01">{{ old('departure_dates', $package->departureDates->pluck('departure_date')->map(fn($d) => $d->format('Y-m-d'))->implode("\n")) }}</textarea>
+            @error('departure_dates')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+            <p class="mt-2 text-sm text-ocean-600">Enter one date per line in YYYY-MM-DD format.</p>
+        </div>
     </div>
 
     <div class="grid gap-6 sm:grid-cols-2">

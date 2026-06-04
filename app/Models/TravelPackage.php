@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 class TravelPackage extends Model
 {
@@ -21,18 +23,68 @@ class TravelPackage extends Model
         'price_per_person',
         'max_capacity',
         'is_active',
+        'departure_date',
         'created_at',
     ];
 
     protected $casts = [
         'price_per_person' => 'decimal:2',
         'is_active' => 'boolean',
+        'departure_date' => 'datetime',
         'created_at' => 'datetime',
     ];
 
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function departureDates(): HasMany
+    {
+        return $this->hasMany(TravelPackageDepartureDate::class, 'package_id', 'package_id')->orderBy('departure_date');
+    }
+
+    public function upcomingDepartureDates(): HasMany
+    {
+        return $this->departureDates()->whereDate('departure_date', '>=', now()->toDateString());
+    }
+
+    public function getNextDepartureDateAttribute()
+    {
+        $nextDate = $this->departureDates()
+            ->whereDate('departure_date', '>=', now()->addWeek()->toDateString())
+            ->orderBy('departure_date')
+            ->first();
+
+        return $nextDate ? $nextDate->departure_date : null;
+    }
+
+    public function syncDepartureDates(array $dates): void
+    {
+        $normalized = collect($dates)
+            ->filter()
+            ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+
+        $this->departureDates()->whereNotIn('departure_date', $normalized)->delete();
+
+        foreach ($normalized as $date) {
+            $this->departureDates()->firstOrCreate(['departure_date' => $date]);
+        }
+
+        $this->departure_date = reset($normalized) ?: null;
+        $this->save();
+    }
+
+    public function scopeUpcoming($query)
+    {
+        return $query->active()
+            ->whereHas('departureDates', function ($query) {
+                $query->whereDate('departure_date', '>=', now()->addWeek()->toDateString());
+            });
     }
 
     public function images()

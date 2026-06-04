@@ -8,6 +8,7 @@ use App\Models\TravelPackage;
 use App\Models\TravelPackageImage;
 use App\Models\TravelRequest;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,6 +35,10 @@ class AdminController extends Controller
         $totalPackages = TravelPackage::count();
         $totalBookings = Booking::count();
         $totalRequests = TravelRequest::count();
+        $latestBookings = Booking::with(['user', 'packageBookings.travelPackage', 'payments'])
+            ->orderByDesc('created_at')
+            ->take(6)
+            ->get();
 
         $ageGroups = [
             'Under 18' => 0,
@@ -83,6 +88,7 @@ class AdminController extends Controller
             'totalPackages',
             'totalBookings',
             'totalRequests',
+            'latestBookings',
             'ageGroups',
             'regionDistribution',
             'genderDistribution',
@@ -94,7 +100,7 @@ class AdminController extends Controller
     {
         $this->authorizeAdmin();
 
-        $packages = TravelPackage::orderByDesc('created_at')->get();
+        $packages = TravelPackage::with('departureDates')->orderByDesc('created_at')->get();
 
         return view('admin.packages.index', compact('packages'));
     }
@@ -120,6 +126,7 @@ class AdminController extends Controller
             'duration_days' => ['required', 'integer', 'min:1'],
             'price_per_person' => ['required', 'numeric', 'min:0'],
             'max_capacity' => ['required', 'integer', 'min:1'],
+            'departure_dates' => ['required', 'string'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'max:5120'],
             'is_active' => ['nullable', 'boolean'],
@@ -136,6 +143,8 @@ class AdminController extends Controller
             'is_active' => $request->boolean('is_active'),
             'created_at' => now(),
         ]);
+
+        $package->syncDepartureDates($this->parseDepartureDates($request->input('departure_dates')));
 
         foreach ($request->file('images', []) as $file) {
             if (! $file || ! $file->isValid()) {
@@ -172,6 +181,7 @@ class AdminController extends Controller
             'duration_days' => ['required', 'integer', 'min:1'],
             'price_per_person' => ['required', 'numeric', 'min:0'],
             'max_capacity' => ['required', 'integer', 'min:1'],
+            'departure_dates' => ['required', 'string'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'max:5120'],
             'is_active' => ['nullable', 'boolean'],
@@ -188,6 +198,8 @@ class AdminController extends Controller
             'is_active' => $request->boolean('is_active'),
         ]);
 
+        $package->syncDepartureDates($this->parseDepartureDates($request->input('departure_dates')));
+
         foreach ($request->file('images', []) as $file) {
             if (! $file || ! $file->isValid()) {
                 continue;
@@ -202,6 +214,44 @@ class AdminController extends Controller
         }
 
         return redirect()->route('admin.packages.index')->with('success', 'Destination updated successfully.');
+    }
+
+    private function parseDepartureDates(string $input): array
+    {
+        $lines = preg_split('/\r?\n/', trim($input));
+        $dates = [];
+
+        foreach ($lines as $line) {
+            $value = trim($line);
+            if ($value === '') {
+                continue;
+            }
+
+            $carbon = Carbon::createFromFormat('Y-m-d', $value);
+            if (! $carbon || $carbon->format('Y-m-d') !== $value) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'departure_dates' => 'Each departure date must be in YYYY-MM-DD format.',
+                ]);
+            }
+
+            if ($carbon->lt(now()->startOfDay())) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'departure_dates' => 'Departure dates must be today or later.',
+                ]);
+            }
+
+            $dates[] = $carbon->format('Y-m-d');
+        }
+
+        $dates = array_values(array_unique($dates));
+
+        if (empty($dates)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'departure_dates' => 'Enter at least one valid departure date.',
+            ]);
+        }
+
+        return $dates;
     }
 
     public function destroyPackage(TravelPackage $package): RedirectResponse

@@ -46,6 +46,7 @@
                     <div>
                         <h2 class="text-2xl font-semibold text-ocean-950">{{ $package->title }}</h2>
                         <p class="mt-1 text-sm text-ocean-600">{{ $package->destination_city }}, {{ $package->destination_country }}</p>
+                        <p class="mt-2 text-sm text-ocean-600">Departs {{ $package->departure_date?->format('M j, Y') }}</p>
                         <p class="mt-2 text-sm text-ocean-600">{{ $package->description }}</p>
                     </div>
                     <div class="space-y-1 text-right">
@@ -56,9 +57,16 @@
                 <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <p class="text-lg font-semibold text-ocean-950">Starting from ${{ number_format($package->price_per_person, 0) }} / person</p>
                     @auth
-                    <a href="{{ route('bookings.create', ['package' => $package, 'dates' => $dates, 'travelers' => $travelers]) }}" class="inline-flex rounded-full bg-ocean-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-ocean-800">Book &amp; pay</a>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="{{ route('packages.show', $package) }}" class="inline-flex rounded-full bg-sand-100 px-6 py-3 text-sm font-semibold text-ocean-950 transition hover:bg-sand-200">View details</a>
+                        <a href="{{ route('cart.add', ['package' => $package, 'dates' => $dates, 'travelers' => $travelers]) }}" class="inline-flex rounded-full bg-coral-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-coral-600">Add to cart</a>
+                        <a href="{{ route('bookings.create', ['package' => $package, 'dates' => $dates, 'travelers' => $travelers]) }}" class="inline-flex rounded-full bg-ocean-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-ocean-800">Book &amp; pay</a>
+                    </div>
                     @else
-                    <a href="{{ route('login') }}" class="inline-flex rounded-full bg-ocean-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-ocean-800">Login to book</a>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="{{ route('packages.show', $package) }}" class="inline-flex rounded-full bg-sand-100 px-6 py-3 text-sm font-semibold text-ocean-950 transition hover:bg-sand-200">View details</a>
+                        <a href="{{ route('login') }}" class="inline-flex rounded-full bg-ocean-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-ocean-800">Login to add to cart</a>
+                    </div>
                     @endauth
                 </div>
             </article>

@@ -8,23 +8,27 @@ use App\Models\Payment;
 use App\Models\TravelPackage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class BookingController extends Controller
 {
     public function create(Request $request, TravelPackage $package): View|RedirectResponse
     {
-        if (! $package->is_active) {
+        if (! $package->is_active || ! $package->next_departure_date) {
             abort(404);
         }
+
+        $package->load('departureDates');
 
         return view('bookings.create', [
             'package' => $package,
             'defaultTravelers' => $this->parseTravelersCount($request->query('travelers', '1')),
-            'defaultDate' => $request->query('dates'),
+            'defaultDate' => $request->query('dates', $package->next_departure_date->format('Y-m-d')),
         ]);
     }
 
@@ -42,12 +46,25 @@ class BookingController extends Controller
             ]);
         }
 
-        $validated = $request->validate([
-            'travel_date' => ['required', 'date', 'after:today'],
+        $package->load('departureDates');
+
+        $availableDates = $package->departureDates
+            ->filter(fn ($date) => $date->departure_date->gte(now()->startOfDay()))
+            ->pluck('departure_date')
+            ->map(fn ($date) => $date->format('Y-m-d'))
+            ->all();
+
+        $rules = [
+            'travel_date' => ['required', 'date', Rule::in($availableDates)],
             'number_of_travelers' => ['required', 'integer', 'min:1', 'max:'.$maxTravelers],
             'payment_method' => ['required', 'in:credit_card,debit_card,paypal'],
             'cardholder_name' => ['required_if:payment_method,credit_card,debit_card', 'nullable', 'string', 'max:100'],
             'card_number' => ['required_if:payment_method,credit_card,debit_card', 'nullable', 'string', 'min:13', 'max:19'],
+        ];
+
+        $validated = $request->validate($rules, [
+            'travel_date.in' => 'Please select a valid departure date for this package.',
+            'number_of_travelers.max' => 'Out of stock for that many travelers. Please wait for the next available date or contact us for group bookings.',
         ]);
 
         $travelers = (int) $validated['number_of_travelers'];

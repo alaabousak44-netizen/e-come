@@ -28,6 +28,7 @@
                 <a href="#testimonials" class="text-sm font-medium text-white/90 transition hover:text-coral-300">Reviews</a>
                 @auth
                 <a href="{{ route('dashboard') }}" class="text-sm font-medium text-white/90 transition hover:text-coral-300">My Account</a>
+                <a href="{{ route('cart.index') }}" class="text-sm font-medium text-white/90 transition hover:text-coral-300">Cart ({{ count(session('cart', [])) }})</a>
                 <form action="{{ route('logout') }}" method="POST" class="inline">
                     @csrf
                     <button type="submit" class="rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-white/10 transition hover:bg-white/20">Logout</button>
@@ -55,6 +56,7 @@
                 <a href="#testimonials" class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10">Reviews</a>
                 @auth
                 <a href="{{ route('dashboard') }}" class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10">My Account</a>
+                <a href="{{ route('cart.index') }}" class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10">Cart ({{ count(session('cart', [])) }})</a>
                 @else
                 <a href="{{ route('login') }}" class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10">Login / Sign Up</a>
                 @endauth
@@ -161,7 +163,7 @@
                             </div>
                             <p class="text-sm font-bold text-coral-600">{{ $dest['price'] }}</p>
                         </div>
-                        <a href="#contact" class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-ocean-700 transition hover:text-coral-600">
+                        <a href="{{ route('packages.show', $dest['package_id']) }}" class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-ocean-700 transition hover:text-coral-600">
                             View details
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                         </a>
@@ -195,13 +197,17 @@
                     @endif
                     <h3 class="font-display text-2xl font-semibold">{{ $package->title ?: 'Untitled destination' }}</h3>
                     <p class="mt-1 text-ocean-300">{{ $package->destination_city }}, {{ $package->destination_country }} · {{ $package->duration_days }} days</p>
+                    <p class="mt-2 text-sm text-coral-300">Departing {{ $package->departure_date?->format('M j, Y') }}</p>
                     <p class="mt-6 font-display text-4xl font-bold text-coral-400">${{ number_format($package->price_per_person, 0) }}<span class="text-base font-sans font-normal text-ocean-400"> / person</span></p>
                     <p class="mt-6 text-sm text-ocean-100">{{ $package->description }}</p>
                     @auth
-                    <a href="{{ route('bookings.create', $package) }}" class="mt-8 block w-full rounded-xl {{ $index === 1 ? 'bg-coral-500 hover:bg-coral-600' : 'bg-ocean-700 hover:bg-ocean-600' }} py-3 text-center text-sm font-semibold transition">Book &amp; pay</a>
-                    @else
-                    <a href="{{ route('search', ['destination' => $package->destination_city . ', ' . $package->destination_country]) }}" class="mt-8 block w-full rounded-xl {{ $index === 1 ? 'bg-coral-500 hover:bg-coral-600' : 'bg-ocean-700 hover:bg-ocean-600' }} py-3 text-center text-sm font-semibold transition">View trip</a>
-                    @endauth
+                    <div class="mt-8 space-y-3">
+                        <a href="{{ route('cart.add', $package) }}" class="block w-full rounded-xl bg-coral-500 py-3 text-center text-sm font-semibold text-white transition hover:bg-coral-600">Add to cart</a>
+                        <a href="{{ route('bookings.create', $package) }}" class="block w-full rounded-xl bg-ocean-700 py-3 text-center text-sm font-semibold text-white transition hover:bg-ocean-600">Book &amp; pay</a>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" class="mt-8 block w-full rounded-xl {{ $index === 1 ? 'bg-coral-500 hover:bg-coral-600' : 'bg-ocean-700 hover:bg-ocean-600' }} py-3 text-center text-sm font-semibold transition">Login to add to cart</a>
+                @endauth
                 </div>
                 @empty
                 <p class="col-span-full text-center text-ocean-200">No travel packages in the database yet.</p>

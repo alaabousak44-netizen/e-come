@@ -17,6 +17,7 @@
             <tr>
                 <th class="px-6 py-4">Title</th>
                 <th class="px-6 py-4">Destination</th>
+                <th class="px-6 py-4">Departure</th>
                 <th class="px-6 py-4">Price</th>
                 <th class="px-6 py-4">Duration</th>
                 <th class="px-6 py-4">Status</th>
@@ -28,6 +29,7 @@
                 <tr>
                     <td class="px-6 py-4 font-semibold text-ocean-950">{{ $package->title }}</td>
                     <td class="px-6 py-4">{{ $package->destination_city }}, {{ $package->destination_country }}</td>
+                    <td class="px-6 py-4">{{ optional($package->next_departure_date)->format('M j, Y') ?? 'No available date' }}</td>
                     <td class="px-6 py-4">${{ number_format($package->price_per_person, 2) }}</td>
                     <td class="px-6 py-4">{{ $package->duration_days }} days</td>
                     <td class="px-6 py-4">{{ $package->is_active ? 'Active' : 'Inactive' }}</td>

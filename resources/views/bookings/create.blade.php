@@ -40,14 +40,28 @@
             <h2 class="text-lg font-semibold text-ocean-950">Trip details</h2>
             <div class="mt-6 grid gap-6 sm:grid-cols-2">
                 <div>
-                    <label for="travel_date" class="block text-sm font-medium text-ocean-700">Travel date</label>
-                    <input type="date" id="travel_date" name="travel_date" value="{{ old('travel_date', $defaultDate) }}" min="{{ now()->addDay()->format('Y-m-d') }}" required class="mt-2 w-full rounded-2xl border border-sand-300 bg-sand-100 px-4 py-3 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-500/20">
+                    <label for="travel_date" class="block text-sm font-medium text-ocean-700">Departure date</label>
+                    @php
+                        $departureOptions = $package->departureDates
+                            ->filter(fn ($date) => $date->departure_date->gte(now()->startOfDay()))
+                            ->sortBy('departure_date');
+                    @endphp
+                    @if ($departureOptions->isNotEmpty())
+                        <select id="travel_date" name="travel_date" required class="mt-2 w-full rounded-2xl border border-sand-300 bg-white px-4 py-3 text-sm text-ocean-950 focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-500/20">
+                            @foreach ($departureOptions as $option)
+                                <option value="{{ $option->departure_date->format('Y-m-d') }}" @selected(old('travel_date', $defaultDate) === $option->departure_date->format('Y-m-d'))>{{ $option->departure_date->format('F j, Y') }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <input type="date" id="travel_date" name="travel_date" value="{{ old('travel_date', $defaultDate) }}" required class="mt-2 w-full rounded-2xl border border-sand-300 bg-sand-100 px-4 py-3 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-500/20">
+                    @endif
                     @error('travel_date')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label for="number_of_travelers" class="block text-sm font-medium text-ocean-700">Number of travelers</label>
                     <input type="number" id="number_of_travelers" name="number_of_travelers" value="{{ old('number_of_travelers', $defaultTravelers) }}" min="1" max="{{ $package->max_capacity }}" required class="mt-2 w-full rounded-2xl border border-sand-300 bg-sand-100 px-4 py-3 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-500/20">
                     @error('number_of_travelers')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                    <p class="mt-2 text-sm text-ocean-600">Maximum {{ $package->max_capacity }} travelers per booking. If your party exceeds this, please wait for the next available date or contact support.</p>
                 </div>
             </div>
 
