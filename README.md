@@ -10,6 +10,22 @@ Laravel commerce application for browsing travel packages, creating travel reque
 - **Payment:** Integrated payment flow (see app payment-related models/controllers)
 
 ## Features
+
+## Database
+This project uses a relational database managed by Laravel migrations.
+
+### Supported databases
+MySQL/MariaDB is the most common (configure via `.env`). Laravel also supports other drivers (PostgreSQL, SQLite, SQL Server) if you adjust `DB_CONNECTION`.
+
+### Create database
+When using XAMPP/MySQL:
+- Create a database in phpMyAdmin.
+- Set `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` in `.env`.
+
+### Run migrations
+```bash
+php artisan migrate --force
+```
 - User authentication (member/admin)
 - Travel packages: view/search and details
 - Travel requests / bookings management
@@ -65,8 +81,8 @@ npm run build
 ## Demo account
 > Add real demo credentials based on your seeding/admin-creation logic.
 
-- Admin: `admin@example.com` / `admin123`
-- Member: `user@example.com` / `user123`
+- Admin: `admin@horizon.com` / `123456789`
+- Member: `alaabousak44@gmail.com` / `98271585`
 
 (If you use seeders, run them and update these values to match your seeded users.)
 
